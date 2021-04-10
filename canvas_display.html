@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://github.com/photonstorm/phaser/releases/download/v3.54.0/phaser.min.js"></script>
+</head>
+<style>
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      background-color: #000000;
+    }
+</style>
+<body>
+
+    <script>
+
+    const ratio = Math.max(window.innerWidth / window.innerHeight, window.innerHeight / window.innerWidth)
+    const DEFAULT_HEIGHT = 720 // any height you want
+    const DEFAULT_WIDTH = ratio * DEFAULT_HEIGHT
+
+    var config = {
+        width: DEFAULT_WIDTH,
+        height: DEFAULT_HEIGHT,
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH
+        },
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 200 }
+            }
+        },
+        scene: {
+            create: create,
+            update: update,
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var host = "172.29.41.16:8888";  // development IP (recorded data)
+    var image = new Image();         // html image element -- to be displayed in the canvas
+    var canvas;                      // canvas for drawing the image
+
+    var depth = {
+        socket: null,
+        start: function () {
+            var url = "ws://" + host + "/twod";
+            frames.socket = new WebSocket(url);
+            frames.socket.onmessage = function (event) {
+                image.src = 'data:image/pnjpegg;base64,' + JSON.parse(event.data).src;
+            }
+        }
+    }; 
+
+    function create ()
+    {
+        // create texture for image display
+        // see doc for Phaser canvas texture here: https://rexrainbow.github.io/phaser3-rex-notes/docs/site/canvas-texture/
+        canvas = this.textures.createCanvas('twod', 640, 360);  // key, width, height
+
+        //  display the canvas on an image
+        this.add.image(window.innerWidth/2, window.innerHeight/2, 'twod');
+
+        // socket
+        depth.start();
+    }
+
+    function update ()
+    {
+        canvas.context.drawImage(image, 0, 0);
+        canvas.refresh();
+    }
+    </script>
+
+</body>
+</html>

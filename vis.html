@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://github.com/photonstorm/phaser/releases/download/v3.54.0/phaser.min.js"></script>
+    <script src = "https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<style>
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      background-color: #000000;
+    }
+</style>
+<body>
+
+    <script>
+
+    const ratio = Math.max(window.innerWidth / window.innerHeight, window.innerHeight / window.innerWidth)
+    const DEFAULT_HEIGHT = 720 // any height you want
+    const DEFAULT_WIDTH = ratio * DEFAULT_HEIGHT
+
+    var config = {
+        width: DEFAULT_WIDTH,
+        height: DEFAULT_HEIGHT,
+        scale: {
+            mode: Phaser.Scale.FIT,
+            autoCenter: Phaser.Scale.CENTER_BOTH
+        },
+        physics: {
+            default: 'arcade',
+            arcade: {
+                gravity: { y: 200 }
+            }
+        },
+        scene: {
+            preload: preload,
+            create: create,
+            update: update,
+        }
+    };
+
+    var game = new Phaser.Game(config);
+    var host = "172.29.41.16:8888";  // development IP (recorded data)
+    var latest_frame;                // place holder for latest camera data
+    var aliens = new Object();       // objects in JS are like Python dicts
+
+    var caption;
+    var captionStyle = {
+        fill: '#7fdbff',
+        fontFamily: 'monospace',
+        lineSpacing: 4
+    };
+    var captionTextFormat = (
+        'Total People: %1\n'
+    );
+
+    var frames = {
+        socket: null,
+        start: function () {
+            var url = "ws://" + host + "/frames";
+            frames.socket = new WebSocket(url);
+            frames.socket.onmessage = function (event) {
+                latest_frame = JSON.parse(event.data);
+            }
+        }
+    };  
+
+    function preload ()
+    {
+        this.load.setBaseURL('http://labs.phaser.io');
+        this.load.spritesheet('alien', 'assets/tests/invaders/invader1.png', { frameWidth: 32, frameHeight: 32 });
+    }
+
+    function create ()
+    {
+        // create aliean animation
+        this.anims.create({
+            key: 'creep',
+            frames: this.anims.generateFrameNumbers('alien', { start: 0, end: 1 }),
+            frameRate: 2,
+            repeat: -1
+        });
+
+        // create group of aliens -- we support max 100 people
+        group = this.add.group()
+        caption = this.add.text(10, 10, '', captionStyle);
+
+        // socket
+        frames.start();
+    }
+
+    function update ()
+    {
+        let num_people = 0
+        let origin = [screen.width/2, 0];
+
+        // update aliens to indicate new update call
+        for (const k of Object.keys(aliens)){
+            aliens[k].updated = false;
+        }
+
+        // update aliens
+        if (latest_frame && latest_frame.people) {
+            if (latest_frame && latest_frame.people) {
+                for (const [idx, person] of Object.entries(latest_frame.people)) {
+                    
+                    let x = -1.0 * person.avg_position[0]/20.0 + origin[0]
+                    let y = person.avg_position[2]/20.0 + origin[1]
+                    if (aliens[idx]) {
+                        //console.log("found sprite!");
+                        aliens[idx].x = x;
+                        aliens[idx].y = y;
+                        aliens[idx].updated = true;
+                    } else {
+                        aliens[idx] = this.add.sprite(x, y,'alien');
+                        aliens[idx].setTint(Phaser.Display.Color.RandomRGB().color);
+                        aliens[idx].anims.play('creep');
+                        aliens[idx].updated = true;
+                    }
+                }
+            }
+
+            num_people = Object.keys(latest_frame.people).length  // the number of people is the number of keys in the frame.people obj
+        }
+
+        // delete old aliens -- be good with the environment
+        for (const k of Object.keys(aliens)){
+            if (!aliens[k].updated) {
+                aliens[k].destroy()
+                delete aliens[k];
+            }
+        }
+
+        caption.setText(Phaser.Utils.String.Format(captionTextFormat, [num_people]));
+    }
+    </script>
+
+</body>
+</html>
