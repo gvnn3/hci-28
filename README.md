@@ -19,7 +19,7 @@ as a texture for images. An example is provided in the `canvas_display.html` fil
 
 ### Alien visualization
 
-This sample project also includes a phaser game where the position of people in front of the CEID is visualized with alien sprites.
+This sample project also includes a phaser game where the position of people in front of the TV is visualized with alien sprites.
 Open the `vis.html` example in a browser. You should then see:
 
 <img src="docs/aliens.png" width="400"/>
