@@ -42,7 +42,7 @@
     };
 
     var game = new Phaser.Game(config);
-    var host = "172.29.41.16:8888";  // development IP (recorded data)
+    var host = "172.29.41.160:8888";  // development IP (recorded data)
     var latest_frame;                // place holder for latest camera data
     var aliens = new Object();       // objects in JS are like Python dicts
 
@@ -102,27 +102,25 @@
         }
 
         // update aliens
-        if (latest_frame && latest_frame.people) {
-            if (latest_frame && latest_frame.people) {
-                for (const [idx, person] of Object.entries(latest_frame.people)) {
-                    
-                    let x = -1.0 * person.avg_position[0]/20.0 + origin[0]
-                    let y = person.avg_position[2]/20.0 + origin[1]
-                    if (aliens[idx]) {
-                        //console.log("found sprite!");
-                        aliens[idx].x = x;
-                        aliens[idx].y = y;
-                        aliens[idx].updated = true;
-                    } else {
-                        aliens[idx] = this.add.sprite(x, y,'alien');
-                        aliens[idx].setTint(Phaser.Display.Color.RandomRGB().color);
-                        aliens[idx].anims.play('creep');
-                        aliens[idx].updated = true;
-                    }
+        if (latest_frame && latest_frame.length) {
+            for (let idx = 0; idx < latest_frame.length; idx++) {
+                const person = latest_frame[idx];
+                let x = -1.0 * person.joints[2].position[0]/20.0 + origin[0]
+                let y = person.joints[2].position[2]/20.0 + origin[1]
+                if (aliens[idx]) {
+                    //console.log("found sprite!");
+                    aliens[idx].x = x;
+                    aliens[idx].y = y;
+                    aliens[idx].updated = true;
+                } else {
+                    aliens[idx] = this.add.sprite(x, y,'alien');
+                    aliens[idx].setTint(Phaser.Display.Color.RandomRGB().color);
+                    aliens[idx].anims.play('creep');
+                    aliens[idx].updated = true;
                 }
             }
 
-            num_people = Object.keys(latest_frame.people).length  // the number of people is the number of keys in the frame.people obj
+            num_people = latest_frame.length  // the number of people is the number of keys in the frame.people obj
         }
 
         // delete old aliens -- be good with the environment
