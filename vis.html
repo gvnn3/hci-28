@@ -105,8 +105,8 @@
         if (latest_frame && latest_frame.length) {
             for (let idx = 0; idx < latest_frame.length; idx++) {
                 const person = latest_frame[idx];
-                let x = -1.0 * person.joints[2].position[0]/20.0 + origin[0]
-                let y = person.joints[2].position[2]/20.0 + origin[1]
+                let x = -1.0 * person.joints[2].position.x/2.0 + origin[0]
+                let y = person.joints[2].position.z/8.0 + origin[1]
                 if (aliens[idx]) {
                     //console.log("found sprite!");
                     aliens[idx].x = x;
