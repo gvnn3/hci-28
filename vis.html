@@ -102,9 +102,10 @@
         }
 
         // update aliens
-        if (latest_frame && latest_frame.length) {
-            for (let idx = 0; idx < latest_frame.length; idx++) {
-                const person = latest_frame[idx];
+        let people = latest_frame['people'];
+        if (people && people.length) {
+            for (let idx = 0; idx < people.length; idx++) {
+                const person = people[idx];
                 let x = -1.0 * person.joints[2].position.x/2.0 + origin[0]
                 let y = person.joints[2].position.z/8.0 + origin[1]
                 if (aliens[idx]) {
@@ -120,7 +121,7 @@
                 }
             }
 
-            num_people = latest_frame.length  // the number of people is the number of keys in the frame.people obj
+            num_people = people.length  // the number of people is the number of keys in the frame.people obj
         }
 
         // delete old aliens -- be good with the environment
