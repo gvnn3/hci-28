@@ -11,10 +11,18 @@
 <body>
 
 <script>
+// Global configuration variables
+var screenWidth = 800;
+var screenHeight = 400; // Height is determined by aspect ratio
+var aspectRatio = screenWidth / screenHeight;
+var paddleSize = 60; // Diameter of the paddle
+var puckSize = 15; // Diameter of the puck
+var puckFriction = 0.99; // Friction effect on the puck
+
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 400,
+    width: screenWidth,
+    height: screenHeight,
     physics: {
         default: 'arcade',
         arcade: {
@@ -32,27 +40,25 @@ var config = {
 var game = new Phaser.Game(config);
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
-var scoreMargin = 100; // Margin for scoring
+var scoreMargin = 100;
+var centerLine = config.width / 2; // Center of the game field
 
 function preload() {
-    this.load.svg('paddle', 'paddle.svg', { width: 60, height: 10 });
-    this.load.svg('puck', 'puck.svg', { width: 15, height: 15 });
+    this.load.svg('paddle', 'paddle.svg', { width: paddleSize, height: paddleSize });
+    this.load.svg('puck', 'puck.svg', { width: puckSize, height: puckSize });
 }
 
 function create() {
-    paddle1 = this.physics.add.sprite(50, this.game.config.height / 2, 'paddle');
-    paddle1.setScale(0.3); // Scale down to fit the circular boundary
-    paddle1.body.setCircle(30); // Set circular collision boundary
+    paddle1 = this.physics.add.sprite(50, config.height / 2, 'paddle').setScale(0.3);
+    paddle1.body.setCircle(paddleSize / 2);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
-    paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle');
-    paddle2.setScale(0.3); // Scale down to fit the circular boundary
-    paddle2.body.setCircle(30); // Set circular collision boundary
+    paddle2 = this.physics.add.sprite(config.width - 50, config.height / 2, 'paddle').setScale(0.3);
+    paddle2.body.setCircle(paddleSize / 2);
     paddle2.setImmovable(true).setCollideWorldBounds(true);
 
-    puck = this.physics.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'puck');
-    puck.setScale(0.5); // Scale down to fit the circular boundary
-    puck.body.setCircle(7.5); // Set circular collision boundary
+    puck = this.physics.add.sprite(config.width / 2, config.height / 2, 'puck').setScale(0.5);
+    puck.body.setCircle(puckSize / 2);
     puck.setCollideWorldBounds(true).setBounce(1, 1);
 
     this.physics.add.collider(puck, paddle1);
@@ -66,32 +72,34 @@ function create() {
         'right': Phaser.Input.Keyboard.KeyCodes.D
     });
 
-    scoreText = this.add.text(this.game.config.width / 2, 16, '0 - 0', { fontSize: '32px', fill: '#FFF' }).setOrigin(0.5, 0);
+    scoreText = this.add.text(config.width / 2, 16, '0 - 0', { fontSize: '32px', fill: '#FFF' }).setOrigin(0.5, 0);
 }
 
 function update() {
     paddle1.setVelocity(0);
     paddle2.setVelocity(0);
 
-    // Paddle controls
+    // Adjust paddle movement and prevent crossing the center line
     if (wasdKeys.up.isDown) paddle1.setVelocityY(-300);
     if (wasdKeys.down.isDown) paddle1.setVelocityY(300);
-    if (wasdKeys.left.isDown) paddle1.setVelocityX(-300);
-    if (wasdKeys.right.isDown) paddle1.setVelocityX(300);
+    if (wasdKeys.left.isDown && paddle1.x > 0) paddle1.setVelocityX(-300); 
+    if (wasdKeys.right.isDown && paddle1.x < centerLine) paddle1.setVelocityX(300);
 
     if (cursors.up.isDown) paddle2.setVelocityY(-300);
     if (cursors.down.isDown) paddle2.setVelocityY(300);
-    if (cursors.left.isDown) paddle2.setVelocityX(-300);
-    if (cursors.right.isDown) paddle2.setVelocityX(300);
+    if (cursors.left.isDown && paddle2.x > centerLine) paddle2.setVelocityX(-300); 
+    if (cursors.right.isDown && paddle2.x < config.width) paddle2.setVelocityX(300);
 
-    // Check for score
+    // Apply friction to slow down the puck
+    puck.setVelocityX(puck.body.velocity.x * puckFriction);
+    puck.setVelocityY(puck.body.velocity.y * puckFriction);
+
+    // Score and puck reset logic remains the same
     if (puck.x <= scoreMargin) {
-        // Puck is within the left scoring margin
         player2Score++;
         updateScore();
         resetPuck();
     } else if (puck.x >= config.width - scoreMargin) {
-        // Puck is within the right scoring margin
         player1Score++;
         updateScore();
         resetPuck();
@@ -103,9 +111,8 @@ function updateScore() {
 }
 
 function resetPuck() {
-    // Reset puck position and velocity
     puck.setPosition(config.width / 2, config.height / 2);
-    puck.setVelocity(0, 0); // Optionally, you can set a starting velocity here
+    puck.setVelocity(0, 0);
 }
 
 </script>
