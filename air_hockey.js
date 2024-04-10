@@ -1,4 +1,3 @@
-// Colors and sizes
 const RED = 0xed4a4a
 const BLUE = 0x1239b0
 const NAVY = 0x000080
@@ -32,7 +31,7 @@ var config = {
 var game = new Phaser.Game(config);
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
-var scoreMargin = 25; // Margin for scoring
+var scoreMargin = 25;
 
 function preload() {
     this.load.css('my_styles', 'styles.css');
@@ -41,7 +40,6 @@ function preload() {
 }
 
 function create() {
-    // Rink setup
     const center_line = this.add.line(0, 0, this.game.config.width / 2, 0, this.game.config.width / 2, this.game.config.height * 2, RED)
     center_line.setStrokeStyle(4, RED)
     center_line.setLineWidth(3)
@@ -66,7 +64,6 @@ function create() {
     center_circle.lineStyle(1, BLUE, 1);
 
     center_circle.beginPath();
-    // arc (x, y, radius, start_angle, end_angle, anticlockwise_bool)
     center_circle.arc(this.game.config.width / 2, this.game.config.height / 2, CIRCLE_RAD, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360), false);
     center_circle.strokePath();
 
@@ -79,26 +76,24 @@ function create() {
     const c4 = this.add.arc(this.game.config.width * 4 / 5, this.game.config.height * 3 / 4, CIRCLE_RAD, 0, 360, false);
     c4.setStrokeStyle(1, RED);
 
-    // Scoreboard setup
     var score_rect = this.add.rectangle(this.game.config.width / 2, 0, 120, 120, SILVER);
     var p1_rect = this.add.rectangle(this.game.config.width / 2 - 40, 0, 40, 25, RED)
     var p2_rect = this.add.rectangle(this.game.config.width / 2 + 40, 0, 40, 25, BLUE)
     var score_label = this.add.text(this.game.config.width / 2, 2, 'SCORE', { fontSize: '10px', fill: '0x000000' }).setOrigin(0.5, 0);
 
-    // Game play setup (paddles, puck)
     paddle1 = this.physics.add.sprite(50, this.game.config.height / 2, 'paddle');
-    paddle1.setScale(0.3); // Scale down to fit the circular boundary
-    paddle1.body.setCircle(30); // Set circular collision boundary
+    paddle1.setScale(0.3);
+    paddle1.body.setCircle(30);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
     paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle');
-    paddle2.setScale(0.3); // Scale down to fit the circular boundary
-    paddle2.body.setCircle(30); // Set circular collision boundary
+    paddle2.setScale(0.3);
+    paddle2.body.setCircle(30);
     paddle2.setImmovable(true).setCollideWorldBounds(true);
 
     puck = this.physics.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'puck');
-    puck.setScale(0.5); // Scale down to fit the circular boundary
-    puck.body.setCircle(7.5); // Set circular collision boundary
+    puck.setScale(0.5);
+    puck.body.setCircle(7.5);
     puck.setCollideWorldBounds(true).setBounce(1, 1);
 
     this.physics.add.collider(puck, paddle1);
@@ -120,7 +115,6 @@ function update() {
     paddle1.setVelocity(0);
     paddle2.setVelocity(0);
 
-    // Paddle controls
     if (wasdKeys.up.isDown) paddle1.setVelocityY(-300);
     if (wasdKeys.down.isDown) paddle1.setVelocityY(300);
     if (wasdKeys.left.isDown) paddle1.setVelocityX(-300);
@@ -131,14 +125,11 @@ function update() {
     if (cursors.left.isDown) paddle2.setVelocityX(-300);
     if (cursors.right.isDown) paddle2.setVelocityX(300);
 
-    // Check for score
     if (puck.x <= scoreMargin) {
-        // Puck is within the left scoring margin
         player2Score++;
         updateScore();
         resetPuck();
     } else if (puck.x >= config.width - scoreMargin) {
-        // Puck is within the right scoring margin
         player1Score++;
         updateScore();
         resetPuck();
@@ -150,7 +141,6 @@ function updateScore() {
 }
 
 function resetPuck() {
-    // Reset puck position and velocity
     puck.setPosition(config.width / 2, config.height / 2);
-    puck.setVelocity(0, 0); // Optionally, you can set a starting velocity here
+    puck.setVelocity(0, 0);
 }
