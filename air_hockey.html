@@ -12,13 +12,12 @@
 
 <script>
 
-// Global configuration variables
 var screenWidth = 800;
-var screenHeight = 400; // Height is determined by aspect ratio
+var screenHeight = 400;
 var aspectRatio = screenWidth / screenHeight;
-var paddleSize = 60; // Diameter of the paddle
-var puckSize = 15; // Diameter of the puck
-var puckFriction = 0.99; // Friction effect on the puck
+var paddleSize = 60;
+var puckSize = 15;
+var puckFriction = 0.99;
 
 var config = {
     type: Phaser.AUTO,
@@ -43,7 +42,7 @@ var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
 
 var scoreMargin = 100;
-var centerLine = config.width / 2; // Center of the game field
+var centerLine = config.width / 2;
 
 function preload() {
     this.load.svg('paddle', 'paddle.svg', { width: paddleSize, height: paddleSize });
@@ -81,7 +80,6 @@ function update() {
     paddle1.setVelocity(0);
     paddle2.setVelocity(0);
 
-    // Adjust paddle movement and prevent crossing the center line
     if (wasdKeys.up.isDown) paddle1.setVelocityY(-300);
     if (wasdKeys.down.isDown) paddle1.setVelocityY(300);
     if (wasdKeys.left.isDown && paddle1.x > 0) paddle1.setVelocityX(-300); 
@@ -92,11 +90,9 @@ function update() {
     if (cursors.left.isDown && paddle2.x > centerLine) paddle2.setVelocityX(-300); 
     if (cursors.right.isDown && paddle2.x < config.width) paddle2.setVelocityX(300);
 
-    // Apply friction to slow down the puck
     puck.setVelocityX(puck.body.velocity.x * puckFriction);
     puck.setVelocityY(puck.body.velocity.y * puckFriction);
 
-    // Score and puck reset logic remains the same
     if (puck.x <= scoreMargin) {
         player2Score++;
         updateScore();
