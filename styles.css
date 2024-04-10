@@ -1,0 +1,32 @@
+/* body {
+    margin: 0; 
+    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif 
+}
+
+body {
+    margin: 0;
+    background-color: #42aaf5;
+}
+*/
+#game-container {
+    margin: 0 auto;
+    display: block;
+    text-align: center; 
+}
+/*
+.score-text {
+    color: #42aaf5;
+    font-family: Arial, sans-serif;
+    font-size: 80px;
+    font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
+
+*/
+/* styles.css */
+.score-text {
+    color: red; /* Text color */
+    font-family: Arial, sans-serif; /* Font family */
+    font-size: 24px; /* Font size */
+    font-weight: bold; /* Font weight */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Text shadow */
+}
