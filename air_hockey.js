@@ -28,15 +28,34 @@ var config = {
     }
 };
 
+
 var game = new Phaser.Game(config);
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
 var scoreMargin = 25;
 
+var latest_frame;
+
+/* Create new websocket connection to Display 4 and get frames (from class demo) */
+var host = "cpsc484-04.stdusr.yale.internal:8888";
+
+
+var frames = {
+    socket: null,
+
+    start: function () {
+        var url = "ws://" + host + "/frames";
+        frames.socket = new WebSocket(url);
+        frames.socket.onmessage = function (event) {
+            latest_frame = JSON.parse(event.data);
+        }
+    }
+}; 
+
 function preload() {
     this.load.css('my_styles', 'styles.css');
-    this.load.svg('paddle', 'paddle.svg', { width: 60, height: 10 });
-    this.load.svg('puck', 'puck.svg', { width: 15, height: 15 });
+    this.load.image('paddle', 'assets/handle1.png', { width: 60, height: 10 });
+    this.load.image('puck', 'assets/puck.png', { width: 15, height: 15 });
 }
 
 function create() {
@@ -82,24 +101,31 @@ function create() {
     var score_label = this.add.text(this.game.config.width / 2, 2, 'SCORE', { fontSize: '10px', fill: '0x000000' }).setOrigin(0.5, 0);
 
     paddle1 = this.physics.add.sprite(50, this.game.config.height / 2, 'paddle');
-    paddle1.setScale(0.3);
-    paddle1.body.setCircle(30);
+    paddle1.setScale(0.1);
+    /* The following line changes the collision bounding box to a circle instead of a square
+    but I'm not sure how to best size it. I think it's fine to leave as a square for now and fix this later if time. -Kris */
+    //paddle1.body.setCircle(30);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
     paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle');
-    paddle2.setScale(0.3);
-    paddle2.body.setCircle(30);
+    paddle2.setScale(0.1);
+    //paddle2.body.setCircle(30);
     paddle2.setImmovable(true).setCollideWorldBounds(true);
 
     puck = this.physics.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'puck');
-    puck.setScale(0.5);
-    puck.body.setCircle(7.5);
+    puck.setScale(0.1);
+    //puck.body.setCircle(7.5);
     puck.setCollideWorldBounds(true).setBounce(1, 1);
 
     this.physics.add.collider(puck, paddle1);
     this.physics.add.collider(puck, paddle2);
 
-    cursors = this.input.keyboard.createCursorKeys();
+    //cursors = this.input.keyboard.createCursorKeys();
+    cursors = this.input.mousePointer;
+
+    // Get left wrist position
+    //left_wrist_x = frame.people[0].joints[7].position.x;
+
     wasdKeys = this.input.keyboard.addKeys({
         'up': Phaser.Input.Keyboard.KeyCodes.W, 
         'down': Phaser.Input.Keyboard.KeyCodes.S, 
@@ -109,21 +135,50 @@ function create() {
 
 
     scoreText = this.add.text(this.game.config.width / 2, 16, '0 - 0', { fontSize: '32px', fill: '0x000000' }).setOrigin(0.5, 0);
+
+
+    frames.start();
 }
 
 function update() {
     paddle1.setVelocity(0);
     paddle2.setVelocity(0);
 
-    if (wasdKeys.up.isDown) paddle1.setVelocityY(-300);
-    if (wasdKeys.down.isDown) paddle1.setVelocityY(300);
-    if (wasdKeys.left.isDown) paddle1.setVelocityX(-300);
-    if (wasdKeys.right.isDown) paddle1.setVelocityX(300);
+    var speed = 50;
 
-    if (cursors.up.isDown) paddle2.setVelocityY(-300);
+    var x;
+
+    let people = latest_frame['people'];
+    if (people && people.length)
+    {
+        const person = people[0];
+        x = person.joints[15].position.x;
+    }
+
+    // WASD controls paddle 1 (temp)
+    if (wasdKeys.up.isDown) paddle1.setVelocityY(speed * -1);
+    if (wasdKeys.down.isDown) paddle1.setVelocityY(speed);
+    if (wasdKeys.left.isDown) paddle1.setVelocityX(speed * -1);
+    if (wasdKeys.right.isDown) paddle1.setVelocityX(speed);
+
+    // Cursor controls paddle 2
+    var cursorOnPaddle = paddle2.getBounds().contains(x, cursors.y);
+    if (cursorOnPaddle)
+    {
+        // Paddle stops moving when in the same spot as cursor
+        paddle2.setVelocity(0);
+    }  
+    else
+    {
+        // Paddle follows cursor
+        var angle = Phaser.Math.Angle.Between(paddle2.x, paddle2.y, x, cursors.y);
+        paddle2.setVelocityX(Math.cos(angle) * speed);
+        paddle2.setVelocityY(Math.sin(angle) * speed);
+    }
+    /*if (cursors.up.isDown) paddle2.setVelocityY(-300);
     if (cursors.down.isDown) paddle2.setVelocityY(300);
     if (cursors.left.isDown) paddle2.setVelocityX(-300);
-    if (cursors.right.isDown) paddle2.setVelocityX(300);
+    if (cursors.right.isDown) paddle2.setVelocityX(300);*/
 
     if (puck.x <= scoreMargin) {
         player2Score++;
