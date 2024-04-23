@@ -1,13 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Phaser Air Hockey</title>
-    <link rel="stylesheet" type="text/css" href="styles.css" >
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
-    <script src="air_hockey.js"></script>
-</head>
-<body>
-    <div id="game-container"></div>
-</body>
+    <head>
+        <meta charset="UTF-8">
+        <title>Phaser Air Hockey</title>
+        <link rel="stylesheet" type="text/css" href="styles.css" >
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
+        <script src="scene_intro.js"></script>
+        <script src="air_hockey.js"></script>
+        <script src="scene_instructions.js"></script>
+    </head>
+    <body>
+        <div id="game-container"></div>
+        <script>
+
+            var switchToAirHockey = true
+
+            const config = {
+                type: Phaser.AUTO,
+                parent: "game-container",
+                width: 800,
+                height: 400,
+                backgroundColor: "#ebeff5",
+                physics: {
+                    default: 'arcade',
+                    arcade: {
+                        gravity: { y: 0 },
+                        debug: false
+                    }
+                },
+                scene: [ IntroScene, InstructionsScene, AirHockeyScene ]
+            };
+
+            const game = new Phaser.Game(config);
+
+            // function to switch between scenes
+            function switchScenes() {
+                if (switchToAirHockey) {
+                    game.scene.stop('IntroScene');
+                    game.scene.start('AirHockey');
+                }
+            }
+
+        </script>
+    </body>
 </html>

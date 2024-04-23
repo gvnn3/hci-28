@@ -10,35 +10,31 @@ const TIMEOUT = 60 * 1000 // 60 seconds in milliseconds
 
 const CIRCLE_RAD = 60
 
-var config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 400,
-    backgroundColor: ICE_WHITE,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 0 },
-            debug: false
-        }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
+var AirHockeyScene = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize: createAirHockeyConstructor,
+    init: init,
+    preload: preload,
+    create: create,
+    update: update
+});
 
-
-var game = new Phaser.Game(config);
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
 var scoreMargin = 25;
 
+function createAirHockeyConstructor() {
+    Phaser.Scene.call(this, { "key": "AirHockeyScene" });
+}
+
+function init() {
+
+}
 
 function preload() {
     this.load.css('my_styles', 'styles.css');
     this.load.image('paddle', 'assets/handle1.png', { width: 60, height: 10 });
+    this.load.image('paddle2', 'assets/handle2.png', { width: 60, height: 10 });
     this.load.image('puck', 'assets/puck.png', { width: 15, height: 15 });
 }
 
@@ -55,17 +51,25 @@ function create() {
     neutral_zone2.setStrokeStyle(4, BLUE)
     neutral_zone2.setLineWidth(3)
 
+    const goal_circle1 = this.add.arc(0, this.game.config.height / 2, this.game.config.height / 4, 90, 270, true, RED, 0.25);
+
+    const goal_circle2 = this.add.arc(this.game.config.width, this.game.config.height / 2, this.game.config.height / 4, 90, 270, false, BLUE, 0.25);
+
     const goal_line1 = this.add.line(0, 0, 25, 0, 25, this.game.config.height * 2, RED)
     goal_line1.setStrokeStyle(4, RED)
     goal_line1.setLineWidth(3)
 
-    const goal_area1 = this.add.line(0, 100, 3, 100, 3, 300, RED) 
+    const goal_area1 = this.add.line(0, this.game.config.height / 4, 3, this.game.config.height / 4, 3, this.game.config.height * 3 / 4, RED) 
     goal_area1.setStrokeStyle(4, BLACK)
     goal_area1.setLineWidth(3)
 
     const goal_line2 = this.add.line(0, 0, this.game.config.width - 25, 0, this.game.config.width - 25, this.game.config.height * 2, RED)
     goal_line2.setStrokeStyle(4, RED)
     goal_line2.setLineWidth(3)
+
+    const goal_area2 = this.add.line(0, this.game.config.height / 4, this.game.config.width - 3, this.game.config.height / 4, this.game.config.width - 3, this.game.config.height * 3 / 4, RED) 
+    goal_area2.setStrokeStyle(4, BLACK)
+    goal_area2.setLineWidth(3)
 
     const center_circle = this.add.graphics();
     center_circle.lineStyle(1, BLUE, 1);
@@ -94,7 +98,7 @@ function create() {
     paddle1.setCircle(paddle1.body.halfWidth);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
-    paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle');
+    paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle2');
     paddle2.setScale(0.1);
     //paddle2.body.setCircle(30);
     paddle2.setCircle(paddle2.body.halfWidth);
@@ -180,7 +184,7 @@ function resetPuck() {
     puck.setPosition(config.width / 2, config.height / 2);
 }
 
-function reset_game ()
+function reset_game () // may need to revisit this, since Game has now been moved to top-level index.html to support scene switching
 {
     game.destroy(true, false);
     game = new Phaser.Game(config);
