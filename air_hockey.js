@@ -9,34 +9,31 @@ const DARK_GRAY = 0x303030
 
 const CIRCLE_RAD = 60
 
-var config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 400,
-    backgroundColor: ICE_WHITE,
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 0 },
-            debug: false
-        }
-    },
-    scene: {
-        preload: preload,
-        create: create,
-        update: update
-    }
-};
+var AirHockeyScene = new Phaser.Class({
+    Extends: Phaser.Scene,
+    initialize: createAirHockeyConstructor,
+    init: init,
+    preload: preload,
+    create: create,
+    update: update
+});
 
-var game = new Phaser.Game(config);
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
 var scoreMargin = 25;
 
+function createAirHockeyConstructor() {
+    Phaser.Scene.call(this, { "key": "AirHockeyScene" });
+}
+
+function init() {
+
+}
+
 function preload() {
     this.load.css('my_styles', 'styles.css');
-    this.load.svg('paddle', 'paddle.svg', { width: 60, height: 10 });
-    this.load.svg('puck', 'puck.svg', { width: 15, height: 15 });
+    this.load.image('paddle', 'assets/air hockey assets-1-P1 Handle.png', { width: 60, height: 10 });
+    this.load.image('puck', 'assets/air hockey assets-3-Puck.png', { width: 15, height: 15 });
 }
 
 function create() {
@@ -144,3 +141,5 @@ function resetPuck() {
     puck.setPosition(config.width / 2, config.height / 2);
     puck.setVelocity(0, 0);
 }
+
+
