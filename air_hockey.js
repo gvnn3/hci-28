@@ -176,7 +176,6 @@ function update() {
 
 function updateScore() {
     scoreText.setText(player1Score + ' - ' + player2Score);
-    setTimeout(reset_game, TIMEOUT);
 }
 
 function resetPuck() {
