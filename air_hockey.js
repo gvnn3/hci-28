@@ -6,6 +6,7 @@ const SILVER = 0xd9d9d9
 const BLACK = 0x000000
 const ICE_WHITE = 0xebeff5
 const DARK_GRAY = 0x303030
+const TIMEOUT = 60 * 1000 // 60 seconds in milliseconds
 
 const CIRCLE_RAD = 60
 
@@ -134,13 +135,22 @@ function update() {
         updateScore();
         resetPuck();
     }
+
 }
 
 function updateScore() {
     scoreText.setText(player1Score + ' - ' + player2Score);
+    setTimeout(reset_game, TIMEOUT);
 }
 
 function resetPuck() {
     puck.setPosition(config.width / 2, config.height / 2);
     puck.setVelocity(0, 0);
 }
+
+function reset_game ()
+{
+    game.destroy(true, false);
+    game = new Phaser.Game(config);
+}
+
