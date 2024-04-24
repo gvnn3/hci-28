@@ -104,19 +104,19 @@ function create() {
     var score_label = this.add.text(this.game.config.width / 2, 2, 'SCORE', { fontSize: '10px', fill: '0x000000' }).setOrigin(0.5, 0);
 
     paddle1 = this.physics.add.sprite(50, this.game.config.height / 2, 'paddle');
-    paddle1.setScale(0.3);
+    paddle1.setScale(0.25);
     //paddle1.body.setCircle(30);
     paddle1.setCircle(paddle1.body.halfWidth);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
     paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle2');
-    paddle2.setScale(0.3);
+    paddle2.setScale(0.25);
     //paddle2.body.setCircle(30);
     paddle2.setCircle(paddle2.body.halfWidth);
     paddle2.setImmovable(true).setCollideWorldBounds(true);
 
     puck = this.physics.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'puck');
-    puck.setScale(0.3);
+    puck.setScale(0.25);
     //puck.body.setCircle(7.5);
     puck.setCircle(puck.body.halfWidth);
     puck.setCollideWorldBounds(true).setBounce(1, 1);
@@ -142,14 +142,25 @@ function create() {
 }
 
 function update() {
+    paddle1.setVelocity(0);
+    paddle2.setVelocity(0);
+
+    var speed = 750;
+
     if (GameState.playerHands[0].x !== null && GameState.playerHands[0].y !== null) {
-        paddle1.x = (GameState.playerHands[0].x + 600) * (this.game.config.width / 1200);
-        paddle1.y = (-GameState.playerHands[0].y + 500) * (this.game.config.width / 1200);
+        hand1X = (GameState.playerHands[0].x + 600) * (this.game.config.width / 1200);
+        hand1Y = (-GameState.playerHands[0].y + 500) * (this.game.config.width / 1200);
+        var angle = Phaser.Math.Angle.Between(paddle1.x, paddle1.y, hand1X, hand1Y);
+        paddle1.setVelocityX(Math.cos(angle) * speed);
+        paddle1.setVelocityY(Math.sin(angle) * speed);
     }
     
     if (GameState.playerHands[1].x !== null && GameState.playerHands[1].y !== null) {
-        paddle2.x = (GameState.playerHands[1].x + 600) * (this.game.config.width / 1200);
-        paddle2.y = (-GameState.playerHands[1].y + 500) * (this.game.config.width / 1200);
+        hand2X = (GameState.playerHands[1].x + 600) * (this.game.config.width / 1200);
+        hand2Y = (-GameState.playerHands[1].y + 500) * (this.game.config.width / 1200);
+        var angle = Phaser.Math.Angle.Between(paddle2.x, paddle2.y, hand2X, hand2Y);
+        paddle2.setVelocityX(Math.cos(angle) * speed);
+        paddle2.setVelocityY(Math.sin(angle) * speed);
     }
 
     if (puck.x <= scoreMargin && (puck.y >= this.game.config.height / 4 && puck.y <= this.game.config.height * 3 / 4)) {
