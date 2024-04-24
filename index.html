@@ -4,21 +4,19 @@
         <meta charset="UTF-8">
         <title>Phaser Air Hockey</title>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.55.2/phaser.min.js"></script>
-        <script src="intro.js"></script>
-        <script src="instructions.js"></script>
+        <script src="scene_intro.js"></script>
+        <!-- <script src="instructions.js"></script> -->
         <script src="air_hockey.js"></script>
         <script src="scene_instructions.js"></script>
-        <script src="scene_win.js"></script>
+        <!-- <script src="scene_win.js"></script> -->
         <script src="high_five.js"></script>
     </head>
     <body>
         <script>
-
-
             const config = {
                 type: Phaser.AUTO,
-                width: window.innerWidth,
-                height: window.innerHeight,
+                width: window.innerWidth * 0.99,
+                height: window.innerHeight * 0.99,
                 backgroundColor: "#ebeff5",
                 physics: {
                     default: 'arcade',
@@ -27,7 +25,7 @@
                         debug: false
                     }
                 },
-                scene: [ IntroScene, InstructionsScene, AirHockeyScene, WinScene, HighFiveScene ]
+                scene: [ IntroScene, InstructionsScene, AirHockeyScene, HighFiveScene ]
             };
 
             const game = new Phaser.Game(config);
