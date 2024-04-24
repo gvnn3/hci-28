@@ -41,7 +41,7 @@ Due to the positioning of the Kinect sensor and its sensitivity, players must be
 
 Most importantly, their hands must stay in the sensor range, which extends to the width of the TV display according to the depth constraints above.
 
-(TODO: Kai to update)
+The depth coordinate detected by the motion sensor tends to be unreliable, hence we disregard it when detecting whether two players' hands are next to each other, and only look at their horizontal positions.
 
 ## Collaboration Record
 Student Name and NetID: George Neville-Neil **gn262**
@@ -63,8 +63,6 @@ Contribution:
 
 Student Name and NetID: Kai Xu **kx38**
 Contribution:
-
-
-
-
-
+* Adapting the intro scene to respond to motion sensor hand raises
+* Adapting the main gameplay scene to work with two players and have the paddle track hand motion
+* Developing the ending high-five scene

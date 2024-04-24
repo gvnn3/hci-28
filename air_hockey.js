@@ -6,9 +6,20 @@ const SILVER = 0xd9d9d9
 const BLACK = 0x000000
 const ICE_WHITE = 0xebeff5
 const DARK_GRAY = 0x303030
+const TIMEOUT = 60 * 1000
 
 const CIRCLE_RAD = 60
 const WIN_SCORE = 3 
+
+const GameState = {
+    playerHands: [{ x: null, y: null }, { x: null, y: null }],
+    updatePlayerHands: function(index, x, y) {
+        if (this.playerHands[index]) {
+            this.playerHands[index].x = x;
+            this.playerHands[index].y = y;
+        }
+    }
+};
 
 var AirHockeyScene = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -29,11 +40,12 @@ function createAirHockeyConstructor() {
 }
 
 function init() {
-
+    this.socket = null;
+    // this.playerHands = [{ x: null, y: null }, { x: null, y: null }];
 }
 
 function preload() {
-    this.load.css('my_styles', 'styles.css');
+    // this.load.css('my_styles', 'styles.css');
     this.load.image('paddle', 'assets/handle1.png', { width: 60, height: 10 });
     this.load.image('paddle2', 'assets/handle2.png', { width: 60, height: 10 });
     this.load.image('puck', 'assets/puck.png', { width: 15, height: 15 });
@@ -94,19 +106,19 @@ function create() {
     var score_label = this.add.text(this.game.config.width / 2, 2, 'SCORE', { fontSize: '10px', fill: '0x000000' }).setOrigin(0.5, 0);
 
     paddle1 = this.physics.add.sprite(50, this.game.config.height / 2, 'paddle');
-    paddle1.setScale(0.1);
+    paddle1.setScale(0.3);
     //paddle1.body.setCircle(30);
     paddle1.setCircle(paddle1.body.halfWidth);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
     paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle2');
-    paddle2.setScale(0.1);
+    paddle2.setScale(0.3);
     //paddle2.body.setCircle(30);
     paddle2.setCircle(paddle2.body.halfWidth);
     paddle2.setImmovable(true).setCollideWorldBounds(true);
 
     puck = this.physics.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'puck');
-    puck.setScale(0.1);
+    puck.setScale(0.3);
     //puck.body.setCircle(7.5);
     puck.setCircle(puck.body.halfWidth);
     puck.setCollideWorldBounds(true).setBounce(1, 1);
@@ -128,49 +140,28 @@ function create() {
 
     scoreText = this.add.text(this.game.config.width / 2, 16, '0 - 0', { fontSize: '32px', fill: '0x000000' }).setOrigin(0.5, 0);
 
-
+    startWebSocket();
 }
 
 function update() {
-    paddle1.setVelocity(0);
-    paddle2.setVelocity(0);
-
-    var speed = 350;
-
-
-    // WASD controls paddle 1 (temp)
-    if (wasdKeys.up.isDown) paddle1.setVelocityY(speed * -1);
-    if (wasdKeys.down.isDown) paddle1.setVelocityY(speed);
-    if (wasdKeys.left.isDown) paddle1.setVelocityX(speed * -1);
-    if (wasdKeys.right.isDown) paddle1.setVelocityX(speed);
-
-    // Cursor controls paddle 2
-    var cursorOnPaddle = paddle2.getBounds().contains(cursors.x, cursors.y);
-    if (cursorOnPaddle)
-    {
-        // Paddle stops moving when in the same spot as cursor
-        paddle2.setVelocity(0);
-    }  
-    else
-    {
-        // Paddle follows cursor
-        var angle = Phaser.Math.Angle.Between(paddle2.x, paddle2.y, cursors.x, cursors.y);
-        paddle2.setVelocityX(Math.cos(angle) * speed);
-        paddle2.setVelocityY(Math.sin(angle) * speed);
+    if (GameState.playerHands[0].x !== null && GameState.playerHands[0].y !== null) {
+        paddle1.x = (GameState.playerHands[0].x + 600) * (this.game.config.width / 1200);
+        paddle1.y = (-GameState.playerHands[0].y + 500) * (this.game.config.width / 1200);
     }
-    /*if (cursors.up.isDown) paddle2.setVelocityY(-300);
-    if (cursors.down.isDown) paddle2.setVelocityY(300);
-    if (cursors.left.isDown) paddle2.setVelocityX(-300);
-    if (cursors.right.isDown) paddle2.setVelocityX(300);*/
+    
+    if (GameState.playerHands[1].x !== null && GameState.playerHands[1].y !== null) {
+        paddle2.x = (GameState.playerHands[1].x + 600) * (this.game.config.width / 1200);
+        paddle2.y = (-GameState.playerHands[1].y + 500) * (this.game.config.width / 1200);
+    }
 
-    if (puck.x <= scoreMargin && (puck.y >= config.height / 4 && puck.y <= config.height - (config.height / 4))) {
+    if (puck.x <= scoreMargin && (puck.y >= this.game.config.height / 4 && puck.y <= this.game.config.height * 3 / 4)) {
         player2Score++;
-        updateScore();
-        resetPuck();
-    } else if (puck.x >= config.width - scoreMargin && (puck.y >= config.height / 4 && puck.y <= config.height - (config.height / 4))) {
+        updateScore.call(this);
+        resetPuck.call(this);
+    } else if (puck.x >= this.game.config.width - scoreMargin && (puck.y >= this.game.config.height / 4 && puck.y <= this.game.config.height * 3 / 4)) {
         player1Score++;
-        updateScore();
-        resetPuck();
+        updateScore.call(this);
+        resetPuck.call(this);
     }
 
     // Switch to WIN screne if 3 goals are scored ------------
@@ -188,11 +179,62 @@ function update() {
 
 function updateScore() {
     scoreText.setText(player1Score + ' - ' + player2Score);
+
+    if (player1Score === 3) {
+        scoreText.setText('Red Wins!');
+        this.scene.start('HighFiveScene');
+    } else if (player2Score === 3) {
+        scoreText.setText('Blue Wins!');
+        this.scene.start('HighFiveScene');
+    }
+}
+
+function startWebSocket() {
+    var url = "ws://cpsc484-04.stdusr.yale.internal:8888/frames";
+    this.socket = new WebSocket(url);
+    this.socket.onmessage = (event) => {
+        var data = JSON.parse(event.data);
+        this.processAndIdentifyPlayers(data.people);
+    }
+}
+
+function processAndIdentifyPlayers(people) {
+    people.forEach(person => {
+        person.joints.forEach(joint => {
+            joint.position.x = (-joint.position.x - 200);
+            joint.position.y = (-joint.position.y + 500);
+        });
+    });
+
+    let sortedPeople = [...people].sort((a, b) => {
+        const distanceA = Math.sqrt(
+          a.joints[26].position.x ** 2 + 
+          a.joints[26].position.y ** 2 + 
+          a.joints[26].position.z ** 2
+        );
+        const distanceB = Math.sqrt(
+          b.joints[26].position.x ** 2 + 
+          b.joints[26].position.y ** 2 + 
+          b.joints[26].position.z ** 2
+        );
+        return distanceA - distanceB;
+    }).slice(0, 2); 
+
+    sortedPeople = sortedPeople.sort((a, b) => {
+        return a.joints[26].position.x - b.joints[26].position.x;
+    });
+
+    sortedPeople.forEach((person, index) => {
+        if (index < 2) {
+            const higherHand = person.joints[8].position.y > person.joints[15].position.y ? person.joints[8] : person.joints[15];
+            const x = higherHand.position.x;
+            const y = higherHand.position.y;
+            GameState.updatePlayerHands(index, x, y);
+        }
+    });
 }
 
 function resetPuck() {
     puck.setVelocity(0, 0);
     puck.setPosition(config.width / 2, config.height / 2);
 }
-
-
