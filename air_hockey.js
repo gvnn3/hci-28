@@ -6,7 +6,7 @@ const SILVER = 0xd9d9d9
 const BLACK = 0x000000
 const ICE_WHITE = 0xebeff5
 const DARK_GRAY = 0x303030
-const TIMEOUT = 60 * 1000 // 60 seconds in milliseconds
+const TIMEOUT = 60 * 1000
 
 const CIRCLE_RAD = 60
 
@@ -137,22 +137,18 @@ function update() {
     var speed = 350;
 
 
-    // WASD controls paddle 1 (temp)
     if (wasdKeys.up.isDown) paddle1.setVelocityY(speed * -1);
     if (wasdKeys.down.isDown) paddle1.setVelocityY(speed);
     if (wasdKeys.left.isDown) paddle1.setVelocityX(speed * -1);
     if (wasdKeys.right.isDown) paddle1.setVelocityX(speed);
 
-    // Cursor controls paddle 2
     var cursorOnPaddle = paddle2.getBounds().contains(cursors.x, cursors.y);
     if (cursorOnPaddle)
     {
-        // Paddle stops moving when in the same spot as cursor
         paddle2.setVelocity(0);
     }  
     else
     {
-        // Paddle follows cursor
         var angle = Phaser.Math.Angle.Between(paddle2.x, paddle2.y, cursors.x, cursors.y);
         paddle2.setVelocityX(Math.cos(angle) * speed);
         paddle2.setVelocityY(Math.sin(angle) * speed);
@@ -188,4 +184,3 @@ function reset_game () // may need to revisit this, since Game has now been move
     game.destroy(true, false);
     game = new Phaser.Game(config);
 }
-
