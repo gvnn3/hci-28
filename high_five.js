@@ -15,16 +15,15 @@ var HighFiveScene = new Phaser.Class({
 
     create: function() {
         this.add.text(
-            this.game.config.width / 2, 
-            this.game.config.height / 8, 
-            "Congrats! Player " + this.dataFromHockeyScene + " wins!", 
+            this.game.config.width / 2,
+            this.game.config.height / 8,
+            "Congrats! Player " + this.dataFromHockeyScene + " wins!",
             {
                 fontSize: 20,
                 color: "#000000",
                 fontStyle: "normal"
             }
-        ).setOrigin(0.5);
-
+                ).setOrigin(0.5);
 
         var fontSize = this.scale.height * 0.06;
         this.outputText = this.add.text(this.scale.width / 2, this.scale.height / 2, 'Good game!\nHi-five each other!\n🙂', {
@@ -87,9 +86,7 @@ var HighFiveScene = new Phaser.Class({
             Math.pow(hands[0].position.y - hands[1].position.y, 2)
         );
 
-        console.log(distance)
-
-        if (distance <= 300 && !this.hasHighFived) {
+        if (distance <= 10000 && !this.hasHighFived) {
             this.hasHighFived = true;
             clearTimeout(this.initialMessageTimeout);
             this.outputText.setText("Great! Thank you for playing!\nEnjoy your conversation with your new friend!\n🤩");

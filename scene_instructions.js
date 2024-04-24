@@ -128,16 +128,16 @@ function create() {
     // initialTime = GAME_COUNTDOWN;
     // countdownText = this.add.text(0, this.game.config.height * 7 / 8, '', {color: "#000000"}).setOrigin(0.5);
 
-    this.countdownText = this.add.text(
-        this.game.config.width / 2,
-        this.game.config.height * 4 / 5,
-        "Starting in: 5",
-        {
-            fontSize: '30px',
-            color: "#2c9456",
-            fontStyle: "normal"
-        }
-    ).setOrigin(0.5);
+    // this.countdownText = this.add.text(
+    //     this.game.config.width / 2,
+    //     this.game.config.height * 4 / 5,
+    //     "Starting in: 5",
+    //     {
+    //         fontSize: '30px',
+    //         color: "#2c9456",
+    //         fontStyle: "normal"
+    //     }
+    // ).setOrigin(0.5);
 
 
     // Event switcher (for keyboard input testing)
