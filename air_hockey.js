@@ -8,6 +8,7 @@ const ICE_WHITE = 0xebeff5
 const DARK_GRAY = 0x303030
 
 const CIRCLE_RAD = 60
+const WIN_SCORE = 3 
 
 var AirHockeyScene = new Phaser.Class({
     Extends: Phaser.Scene,
@@ -21,6 +22,7 @@ var AirHockeyScene = new Phaser.Class({
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
 var scoreMargin = 25;
+var winnerToPass;
 
 function createAirHockeyConstructor() {
     Phaser.Scene.call(this, { "key": "AirHockeyScene" });
@@ -169,6 +171,18 @@ function update() {
         player1Score++;
         updateScore();
         resetPuck();
+    }
+
+    // Switch to WIN screne if 3 goals are scored ------------
+    if (player1Score == WIN_SCORE || player2Score == WIN_SCORE ) {
+        this.scene.stop('AirHockeyScene');
+        if (player1Score == WIN_SCORE) {
+            winnerToPass = 1;
+        }
+        if (player2Score == WIN_SCORE) {
+            winnerToPass = 2;
+        }
+        this.scene.start('WinScene', { data: winnerToPass });
     }
 }
 

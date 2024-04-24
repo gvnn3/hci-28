@@ -8,6 +8,7 @@
         <script src="scene_intro.js"></script>
         <script src="air_hockey.js"></script>
         <script src="scene_instructions.js"></script>
+        <script src="scene_win.js"></script>
     </head>
     <body>
         <div id="game-container"></div>
@@ -28,7 +29,7 @@
                         debug: false
                     }
                 },
-                scene: [ IntroScene, InstructionsScene, AirHockeyScene ]
+                scene: [ IntroScene, InstructionsScene, AirHockeyScene, WinScene ]
             };
 
             const game = new Phaser.Game(config);
