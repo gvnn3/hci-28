@@ -7,9 +7,9 @@ No separate dependencies need to be installed to run Air Hockey. We only utilize
 
 Our game runs out of the top level `index.html` file. To load the assets correctly, we have had success running the code locally on our laptops with a Python environment from the top-level of our code:
 
-`python3 -m http.server 8000`
+`python3 -m http.server 5028`
 
-The game is then playable from accessing `http://localhost:8000/`
+The game is then playable from accessing `http://localhost:5028/`
 
 Alternatively, the game also loads correctly from `index.html` on laptops using VSCode's Live Server Extension (v5.7.9). Note that we have documented image assets failing to load when running the game as a direct path from `index.html`, so please follow the steps above if planning to run the game from a laptop.
 

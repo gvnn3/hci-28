@@ -65,13 +65,13 @@ function create() {
     // var p2_rect = this.add.rectangle(this.game.config.width / 2 + 40, 0, 40, 25, BLUE);
     // var score_label = this.add.text(this.game.config.width / 2, 2, 'SCORE', { fontSize: '10px', fill: '0x000000' }).setOrigin(0.5, 0);
 
-    paddle1 = this.physics.add.sprite(this.game.config.width / 4, this.game.config.height / 2, 'paddle');
+    paddle1 = this.physics.add.sprite(this.game.config.width / 4, this.game.config.height * 4 / 5, 'paddle');
     paddle1.setScale(0.3);
     //paddle1.body.setCircle(30);
     paddle1.setCircle(paddle1.body.halfWidth);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
-    paddle2 = this.physics.add.sprite(this.game.config.width *3 / 4, this.game.config.height / 2, 'paddle2');
+    paddle2 = this.physics.add.sprite(this.game.config.width *3 / 4, this.game.config.height * 4 / 5, 'paddle2');
     paddle2.setScale(0.3);
     //paddle2.body.setCircle(30);
     paddle2.setCircle(paddle2.body.halfWidth);
