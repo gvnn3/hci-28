@@ -13,9 +13,9 @@ var InstructionsScene = new Phaser.Class({
         const instructionsText = this.add.text(
             this.game.config.width / 2,
             this.game.config.height / 2,
-            "Instructions: use your hand to flick the hockey puck towards the opponent's goal.\nFirst player to 5 points wins!",
+            "Instructions: use your hand to flick the hockey puck towards the opponent's goal.\nFirst player to 3 points wins!",
             {
-                fontSize: '36px',
+                fontSize: '30px',
                 color: "#000000",
                 fontStyle: "normal"
             }
@@ -26,7 +26,7 @@ var InstructionsScene = new Phaser.Class({
             this.game.config.height / 10,
             "Starting in: 5",
             {
-                fontSize: '48px',
+                fontSize: '30px',
                 color: "#FF0000",
                 fontStyle: "normal"
             }
