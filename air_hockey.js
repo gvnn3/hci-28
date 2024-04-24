@@ -111,19 +111,19 @@ function create() {
     var score_label = this.add.text(this.game.config.width / 2, 2, 'SCORE', { fontSize: '10px', fill: '0x000000' }).setOrigin(0.5, 0);
 
     paddle1 = this.physics.add.sprite(50, this.game.config.height / 2, 'paddle');
-    paddle1.setScale(0.3);
+    paddle1.setScale(0.25);
     //paddle1.body.setCircle(30);
     paddle1.setCircle(paddle1.body.halfWidth);
     paddle1.setImmovable(true).setCollideWorldBounds(true);
 
     paddle2 = this.physics.add.sprite(this.game.config.width - 50, this.game.config.height / 2, 'paddle2');
-    paddle2.setScale(0.3);
+    paddle2.setScale(0.25);
     //paddle2.body.setCircle(30);
     paddle2.setCircle(paddle2.body.halfWidth);
     paddle2.setImmovable(true).setCollideWorldBounds(true);
 
     puck = this.physics.add.sprite(this.game.config.width / 2, this.game.config.height / 2, 'puck');
-    puck.setScale(0.3);
+    puck.setScale(0.25);
     //puck.body.setCircle(7.5);
     puck.setCircle(puck.body.halfWidth);
     puck.setCollideWorldBounds(true).setBounce(1, 1);
