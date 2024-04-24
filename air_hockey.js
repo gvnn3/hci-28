@@ -9,6 +9,7 @@ const DARK_GRAY = 0x303030
 const TIMEOUT = 60 * 1000
 
 const CIRCLE_RAD = 60
+const WIN_SCORE = 3
 
 const GameState = {
     playerHands: [{ x: null, y: null }, { x: null, y: null }],
@@ -31,7 +32,8 @@ var AirHockeyScene = new Phaser.Class({
 
 var puck, paddle1, paddle2, cursors, wasdKeys, scoreText;
 var player1Score = 0, player2Score = 0;
-var scoreMargin = 25;
+var scoreMargin = 100;
+var winnerToPass;
 
 function createAirHockeyConstructor() {
     Phaser.Scene.call(this, { "key": "AirHockeyScene" });
@@ -50,15 +52,17 @@ function preload() {
 }
 
 function create() {
+    const ice_rink_circle_radius = this.game.config.height / 7;
+
     const center_line = this.add.line(0, 0, this.game.config.width / 2, 0, this.game.config.width / 2, this.game.config.height * 2, RED)
     center_line.setStrokeStyle(4, RED)
     center_line.setLineWidth(3)
     
-    const neutral_zone1 = this.add.line(0, 0, this.game.config.width / 2 - 90, 0, this.game.config.width / 2 - 90, this.game.config.height * 2, BLUE)
+    const neutral_zone1 = this.add.line(0, 0, this.game.config.width * 2 / 5, 0, this.game.config.width * 2 / 5, this.game.config.height * 2, BLUE)
     neutral_zone1.setStrokeStyle(4, BLUE)
     neutral_zone1.setLineWidth(3)
 
-    const neutral_zone2 = this.add.line(0, 0, this.game.config.width / 2 + 90, 0, this.game.config.width / 2 + 90, this.game.config.height * 2, BLUE)
+    const neutral_zone2 = this.add.line(0, 0, this.game.config.width * 3 / 5, 0, this.game.config.width * 3 / 5, this.game.config.height * 2, BLUE)
     neutral_zone2.setStrokeStyle(4, BLUE)
     neutral_zone2.setLineWidth(3)
 
@@ -66,36 +70,39 @@ function create() {
 
     const goal_circle2 = this.add.arc(this.game.config.width, this.game.config.height / 2, this.game.config.height / 4, 90, 270, false, BLUE, 0.25);
 
-    const goal_line1 = this.add.line(0, 0, 25, 0, 25, this.game.config.height * 2, RED)
+    const goal_line1 = this.add.line(0, 0, this.game.config.width / 12, 0, this.game.config.width / 12, this.game.config.height * 2, RED)
     goal_line1.setStrokeStyle(4, RED)
     goal_line1.setLineWidth(3)
 
     const goal_area1 = this.add.line(0, this.game.config.height / 4, 3, this.game.config.height / 4, 3, this.game.config.height * 3 / 4, RED) 
     goal_area1.setStrokeStyle(4, BLACK)
     goal_area1.setLineWidth(3)
+    // this.physics.add.existing(this.goal_area1);
+    // this.goal_circle1.containsHandle = false;
 
-    const goal_line2 = this.add.line(0, 0, this.game.config.width - 25, 0, this.game.config.width - 25, this.game.config.height * 2, RED)
+    const goal_line2 = this.add.line(0, 0, this.game.config.width * 11/ 12, 0, this.game.config.width * 11 / 12, this.game.config.height * 2, RED)
     goal_line2.setStrokeStyle(4, RED)
     goal_line2.setLineWidth(3)
 
     const goal_area2 = this.add.line(0, this.game.config.height / 4, this.game.config.width - 3, this.game.config.height / 4, this.game.config.width - 3, this.game.config.height * 3 / 4, RED) 
     goal_area2.setStrokeStyle(4, BLACK)
     goal_area2.setLineWidth(3)
+    // this.physics.add.existing(this.goal_area2);
 
     const center_circle = this.add.graphics();
     center_circle.lineStyle(1, BLUE, 1);
 
     center_circle.beginPath();
-    center_circle.arc(this.game.config.width / 2, this.game.config.height / 2, CIRCLE_RAD, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360), false);
+    center_circle.arc(this.game.config.width / 2, this.game.config.height / 2, ice_rink_circle_radius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(360), false);
     center_circle.strokePath();
 
-    const c1 = this.add.arc(this.game.config.width / 5, this.game.config.height / 4, CIRCLE_RAD, 0, 360, false);
+    const c1 = this.add.arc(this.game.config.width / 5, this.game.config.height / 4, ice_rink_circle_radius, 0, 360, false);
     c1.setStrokeStyle(1, RED);
-    const c2 = this.add.arc(this.game.config.width / 5, this.game.config.height * 3 / 4, CIRCLE_RAD, 0, 360, false);
+    const c2 = this.add.arc(this.game.config.width / 5, this.game.config.height * 3 / 4, ice_rink_circle_radius, 0, 360, false);
     c2.setStrokeStyle(1, RED);
-    const c3 = this.add.arc(this.game.config.width * 4 / 5, this.game.config.height / 4, CIRCLE_RAD, 0, 360, false);
+    const c3 = this.add.arc(this.game.config.width * 4 / 5, this.game.config.height / 4, ice_rink_circle_radius, 0, 360, false);
     c3.setStrokeStyle(1, RED);
-    const c4 = this.add.arc(this.game.config.width * 4 / 5, this.game.config.height * 3 / 4, CIRCLE_RAD, 0, 360, false);
+    const c4 = this.add.arc(this.game.config.width * 4 / 5, this.game.config.height * 3 / 4, ice_rink_circle_radius, 0, 360, false);
     c4.setStrokeStyle(1, RED);
 
     var score_rect = this.add.rectangle(this.game.config.width / 2, 0, 120, 120, SILVER);
@@ -145,24 +152,65 @@ function update() {
     paddle1.setVelocity(0);
     paddle2.setVelocity(0);
 
-    var speed = 750;
+    var speed = 1000;
 
     if (GameState.playerHands[0].x !== null && GameState.playerHands[0].y !== null) {
         hand1X = (GameState.playerHands[0].x + 600) * (this.game.config.width / 1200);
         hand1Y = (-GameState.playerHands[0].y + 500) * (this.game.config.width / 1200);
-        var angle = Phaser.Math.Angle.Between(paddle1.x, paddle1.y, hand1X, hand1Y);
-        paddle1.setVelocityX(Math.cos(angle) * speed);
-        paddle1.setVelocityY(Math.sin(angle) * speed);
+        
+        var cursorOnPaddle = paddle1.getBounds().contains(hand1X, hand1Y);
+        if (cursorOnPaddle)
+        {
+            // Paddle stops moving when in the same spot as cursor
+            paddle1.setVelocity(0);
+        }  
+        else
+        {
+            var angle = Phaser.Math.Angle.Between(paddle1.x, paddle1.y, hand1X, hand1Y);
+            paddle1.setVelocityX(Math.cos(angle) * speed);
+            paddle1.setVelocityY(Math.sin(angle) * speed);
+        }
     }
     
     if (GameState.playerHands[1].x !== null && GameState.playerHands[1].y !== null) {
         hand2X = (GameState.playerHands[1].x + 600) * (this.game.config.width / 1200);
         hand2Y = (-GameState.playerHands[1].y + 500) * (this.game.config.width / 1200);
-        var angle = Phaser.Math.Angle.Between(paddle2.x, paddle2.y, hand2X, hand2Y);
-        paddle2.setVelocityX(Math.cos(angle) * speed);
-        paddle2.setVelocityY(Math.sin(angle) * speed);
+
+        var cursorOnPaddle = paddle2.getBounds().contains(hand2X, hand2Y);
+        if (cursorOnPaddle)
+        {
+            // Paddle stops moving when in the same spot as cursor
+            paddle2.setVelocity(0);
+        }  
+        else
+        {
+            var angle = Phaser.Math.Angle.Between(paddle2.x, paddle2.y, hand2X, hand2Y);
+            paddle2.setVelocityX(Math.cos(angle) * speed);
+            paddle2.setVelocityY(Math.sin(angle) * speed);
+        }
     }
 
+    // New goal score logic
+    // let scene = this;
+    // this.physics.add.overlap(this.goal_area1, puck, function(b1, b2) {
+    //     player2Score++;
+    //     updateScore.call(this);
+    //     resetPuck.call(this);
+    //     });
+
+    // this.physics.add.overlap(this.goal_area2, puck, function(b1, b2) {
+    //     player1Score++;
+    //     updateScore.call(this);
+    //     resetPuck.call(this);
+    //     });
+       
+    // } else if (puck.x >= this.game.config.width - scoreMargin && (puck.y >= this.game.config.height / 4 && puck.y <= this.game.config.height * 3 / 4)) {
+    //     player1Score++;
+    //     updateScore.call(this);
+    //     resetPuck.call(this);
+    // }
+
+    // Old goal score logic
     if (puck.x <= scoreMargin && (puck.y >= this.game.config.height / 4 && puck.y <= this.game.config.height * 3 / 4)) {
         player2Score++;
         updateScore.call(this);
@@ -172,17 +220,31 @@ function update() {
         updateScore.call(this);
         resetPuck.call(this);
     }
+
+    // Switch to WIN screne if 3 goals are scored ------------
+    // if (player1Score == WIN_SCORE || player2Score == WIN_SCORE ) {
+    //     this.scene.stop('AirHockeyScene');
+    //     if (player1Score == WIN_SCORE) {
+    //         winnerToPass = 1;
+    //     }
+    //     if (player2Score == WIN_SCORE) {
+    //         winnerToPass = 2;
+    //     }
+    //     this.scene.start('HighFiveScene', { data: winnerToPass });
+    // }
 }
 
 function updateScore() {
     scoreText.setText(player1Score + ' - ' + player2Score);
 
-    if (player1Score === 3) {
-        scoreText.setText('Red Wins!');
-        this.scene.start('HighFiveScene');
-    } else if (player2Score === 3) {
-        scoreText.setText('Blue Wins!');
-        this.scene.start('HighFiveScene');
+    if (player1Score === WIN_SCORE) {
+        // scoreText.setText('Red Wins!');
+        winnerToPass = 1;
+        this.scene.start('HighFiveScene', { data: winnerToPass });
+    } else if (player2Score === WIN_SCORE) {
+        // scoreText.setText('Blue Wins!');
+        winnerToPass = 2;
+        this.scene.start('HighFiveScene', { data: winnerToPass });
     }
 }
 
